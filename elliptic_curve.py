@@ -355,7 +355,28 @@ class EllipticCurveWithFill(VGroup):
             branch.set_fill(color=color, opacity=opacity)
         return self
 
-    def set_stroke(self, color=None, width=None, opacity=None, family=True):
+    def set_stroke(self, color=None, width=None, opacity=None, family=True, **kwargs):
         for branch in self.submobjects:
-            branch.set_stroke(color=color, width=width, opacity=opacity)
+            branch.set_stroke(color=color, width=width, opacity=opacity, **kwargs)
         return self
+
+    @property
+    def fill_rgbas(self):
+        """Return fill_rgbas from first submobject for animation compatibility."""
+        if self.submobjects:
+            return self.submobjects[0].fill_rgbas
+        return np.array([[0, 0, 0, 0]])
+
+    @property
+    def stroke_rgbas(self):
+        """Return stroke_rgbas from first submobject for animation compatibility."""
+        if self.submobjects:
+            return self.submobjects[0].stroke_rgbas
+        return np.array([[0, 0, 0, 0]])
+
+    @property
+    def background_stroke_rgbas(self):
+        """Return background_stroke_rgbas from first submobject for animation compatibility."""
+        if self.submobjects:
+            return self.submobjects[0].background_stroke_rgbas
+        return np.array([[0, 0, 0, 0]])
