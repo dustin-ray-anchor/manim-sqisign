@@ -472,13 +472,15 @@ class SQIsignProtocolOverview(Scene):
             sigma, RIGHT, buff=0.1
         )
 
-        # Animate the "finding" of σ
-        question = MathTex("\\sigma: E_a \\to E_{\\mathrm{chl}} \\; ?", font_size=30)
-        question.next_to(sigma, RIGHT, buff=0.5)
-        self.play(Write(question))
-        self.wait(1.5)
-
         self.play(GrowArrow(sigma), Write(sigma_label))
+
+        # Animate the "finding" of σ
+        question = MathTex(
+            "\\sigma: E_a \\to E_{\\mathrm{chl}} \\; ?", font_size=40, color=GREEN_C
+        ).next_to(sigma, RIGHT, buff=0.1)
+        self.play(Write(question), FadeOut(sigma_label))
+
+        self.wait(1.5)
 
         self.wait(2.5)
 
