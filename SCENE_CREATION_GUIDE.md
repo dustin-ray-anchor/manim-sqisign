@@ -49,12 +49,22 @@ PUBLIC_COLOR = BLUE_B
 
 ## Elliptic Curve Visualization
 
-### CRITICAL: Choosing the Right Class
+### CRITICAL: Choosing the Right Approach
 
-**Use `EllipticCurve` (NO FILL) for all standard visualizations:**
+There are TWO correct ways to render elliptic curves, depending on your use case:
+
+#### Method 1: Standalone Curves (Recommended for Diagrams)
+
+**Use `EllipticCurve` class for standalone mathematical curves:**
 ```python
 curve = EllipticCurve(a=-1, b=0.6, color=CURVE_COLOR, stroke_width=3)
+curve.scale(0.35).move_to(LEFT * 3)
 ```
+
+The `EllipticCurve` class automatically:
+- Finds valid intervals where the curve exists
+- Renders smooth, gap-free curves
+- Handles both bounded and unbounded components correctly
 
 **Use `EllipticCurveIcon` for stylized diagram nodes:**
 ```python
@@ -62,6 +72,60 @@ node = EllipticCurveIcon(color=CURVE_COLOR, fill_opacity=0.0, stroke_width=2, sh
 ```
 
 **NEVER use `EllipticCurveWithFill` unless specifically needed for a special effect.**
+
+#### Method 2: Curves on Axes (For Mathematical Demonstrations)
+
+When showing curves on Manim `Axes` with labeled coordinates, use `axes.plot()` with these CRITICAL parameters:
+
+```python
+# Define curve parameters
+a_val, b_val = -1, 1  # For y² = x³ - x + 1
+
+def curve_y(x, sign=1):
+    """Get y value on curve for given x."""
+    val = x**3 + a_val * x + b_val
+    if val >= 0:
+        return sign * np.sqrt(val)
+    return 0  # Return 0 for invalid regions (Manim will skip)
+
+# Create axes
+axes = Axes(x_range=[-3, 3, 1], y_range=[-3, 3, 1],
+            x_length=5, y_length=5, tips=False)
+
+# Find precise starting point where x³ + ax + b = 0
+# For a=-1, b=1: x ≈ -1.3247
+x_start = -1.3247
+
+# Plot with FINE step size to avoid gaps
+curve_upper = axes.plot(
+    lambda x: curve_y(x, 1),
+    x_range=[x_start, 2.5, 0.005],  # Step size 0.005 is critical!
+    color=CURVE_COLOR,
+    stroke_width=4,
+    use_smoothing=True,
+)
+curve_lower = axes.plot(
+    lambda x: curve_y(x, -1),
+    x_range=[x_start, 2.5, 0.005],
+    color=CURVE_COLOR,
+    stroke_width=4,
+    use_smoothing=True,
+)
+
+# Place points using axes.c2p() for proper alignment
+point_P = Dot(axes.c2p(x_val, y_val), color=HIGHLIGHT_COLOR)
+```
+
+**Key requirements for gap-free rendering with axes.plot():**
+- Step size ≤ 0.005 (NOT 0.01 or larger!)
+- Precise x_start calculation (find exact root)
+- `use_smoothing=True`
+- curve_y function returns 0 for invalid regions (don't raise errors)
+
+**Why this works:**
+- `axes.plot()` and `axes.c2p()` use the same coordinate system
+- Points placed with `axes.c2p()` align perfectly with the plotted curve
+- Fine step size ensures smooth, gap-free rendering
 
 ### Safe Parameters
 To avoid gaps in curves, always use:
@@ -499,16 +563,18 @@ Study these existing scenes for examples:
 
 ## Common Mistakes to Avoid
 
-1. ❌ Using `EllipticCurveWithFill` by default
-2. ❌ Creating titles at the top of the screen
-3. ❌ Using gray text for important information
-4. ❌ Font sizes smaller than 24
-5. ❌ Mismatched colors (gray label on gold arrow)
-6. ❌ Rushing animations (no wait times)
-7. ❌ Using curve parameters that create gaps (b < 0.5 or b > 0.8)
-8. ❌ Cluttered scenes without clear focus
-9. ❌ Missing explanatory text
-10. ❌ Forgetting `sys.path.insert` for imports
+1. ❌ Using `axes.plot()` with large step sizes (≥0.01) - creates gaps!
+2. ❌ Mixing coordinate systems (EllipticCurve with axes.c2p points)
+3. ❌ Using `EllipticCurveWithFill` by default
+4. ❌ Creating titles at the top of the screen
+5. ❌ Using gray text for important information
+6. ❌ Font sizes smaller than 24
+7. ❌ Mismatched colors (gray label on gold arrow)
+8. ❌ Rushing animations (no wait times)
+9. ❌ Using curve parameters that create gaps (b < 0.5 or b > 0.8 for diagram nodes)
+10. ❌ Cluttered scenes without clear focus
+11. ❌ Missing explanatory text
+12. ❌ Forgetting `sys.path.insert` for imports
 
 ---
 
