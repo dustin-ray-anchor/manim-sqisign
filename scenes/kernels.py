@@ -46,7 +46,7 @@ class Kernels(Scene):
         e1 = EllipticCurve(a=-1, b=0.6, color=CURVE_COLOR, stroke_width=4)
         e1.scale(0.45).move_to(LEFT * 3.5)
 
-        e2 = EllipticCurve(a=-1, b=0.7, color=CURVE_COLOR, stroke_width=4)
+        e2 = EllipticCurve(a=-1, b=0.8, color=CURVE_COLOR, stroke_width=4)
         e2.scale(0.45).move_to(RIGHT * 3.5)
 
         e1_label = MathTex("E_1", font_size=36, color=CURVE_COLOR)
@@ -185,7 +185,10 @@ class Kernels(Scene):
 
         # === PART 4: KERNEL MAPS TO IDENTITY ===
 
-        step4 = Text("Kernel Points Collapse to O", font_size=24, color=IDENTITY_COLOR)
+        step4 = VGroup(
+            Text("Kernel Points Collapse to O on ", font_size=24, color=IDENTITY_COLOR),
+            MathTex("E_2", font_size=24, color=IDENTITY_COLOR),
+        ).arrange(RIGHT, buff=0.05)
         step4.to_corner(UL, buff=0.4)
         self.play(FadeOut(step3), FadeIn(step4))
 
@@ -202,6 +205,9 @@ class Kernels(Scene):
         self.play(FadeIn(identity_e2, scale=0.5), Write(identity_label))
         self.wait(0.5)
 
+        # Hide the main isogeny arrow before showing kernel arrows
+        self.play(FadeOut(isogeny_arrow), FadeOut(phi_label))
+
         # Create copies of kernel points that will animate to O
         kernel_copies = VGroup()
         for i in kernel_indices:
@@ -209,9 +215,23 @@ class Kernels(Scene):
             copy.set_color(KERNEL_COLOR if i != 5 else IDENTITY_COLOR)
             kernel_copies.add(copy)
 
+        # Create small arrows from each kernel point to identity
+        kernel_arrows = VGroup()
+        for i in kernel_indices:
+            arrow = Arrow(
+                points_e1[i].get_center(),
+                identity_e2.get_center(),
+                color=KERNEL_COLOR if i != 5 else IDENTITY_COLOR,
+                stroke_width=2,
+                buff=0.1,
+                max_tip_length_to_length_ratio=0.08,
+            )
+            kernel_arrows.add(arrow)
+
         self.add(kernel_copies)
 
-        # Animate kernel points "flying" to identity on E2
+        # Show arrows and animate kernel points "flying" to identity on E2
+        self.play(*[GrowArrow(a) for a in kernel_arrows], run_time=0.8)
         self.play(
             *[
                 kc.animate.move_to(identity_e2.get_center()).scale(0.5).set_opacity(0.7)
@@ -220,6 +240,7 @@ class Kernels(Scene):
             run_time=1.5,
             rate_func=smooth,
         )
+        self.play(FadeOut(kernel_arrows))
 
         # Flash at identity to show they've merged
         flash = Circle(radius=0.3, color=KERNEL_COLOR, stroke_width=4)
@@ -243,12 +264,17 @@ class Kernels(Scene):
 
         # === PART 5: NON-KERNEL POINTS MAP NORMALLY ===
 
-        step5 = Text("Other Points Map Normally", font_size=24, color=TEAL_C)
-        step5.to_corner(UL, buff=0.4)
-        self.play(FadeOut(step4), FadeIn(step5))
+        # Change the bottom text
+        other_points_text = Text(
+            "Other points map normally",
+            font_size=26,
+            color=WHITE,
+        )
+        other_points_text.to_edge(DOWN, buff=0.5)
 
         # Restore non-kernel points
         self.play(
+            Transform(collapse_text, other_points_text),
             *[points_e1[i].animate.set_opacity(1) for i in non_kernel_indices],
             *[point_labels_e1[i].animate.set_opacity(1) for i in non_kernel_indices],
         )
@@ -309,7 +335,7 @@ class Kernels(Scene):
 
         step6 = Text("Key Insight", font_size=24, color=GOLD_A)
         step6.to_corner(UL, buff=0.4)
-        self.play(FadeOut(step5), FadeIn(step6))
+        self.play(FadeOut(step4), FadeIn(step6))
 
         # Clean up some elements
         self.play(
@@ -355,20 +381,38 @@ class Kernels(Scene):
         step7.to_corner(UL, buff=0.4)
         self.play(FadeOut(step6), FadeIn(step7))
 
+        # Calculate transformation parameters
+        old_e1_center = e1.get_center()
+        new_e1_center = LEFT * 5 + UP * 1
+        scale_factor = 0.7
+
         # Move existing elements up and shrink
         self.play(
             FadeOut(insight_bg),
             FadeOut(insight_box),
             FadeOut(e2),
             FadeOut(e2_label),
-            FadeOut(isogeny_arrow),
-            FadeOut(phi_label),
             FadeOut(identity_e2),
             FadeOut(identity_label),
-            e1.animate.scale(0.7).move_to(LEFT * 5 + UP * 1),
-            e1_label.animate.scale(0.8).next_to(LEFT * 5 + UP * 1, DOWN, buff=0.2),
-            *[p.animate.scale(0.7).shift(LEFT * 1.5 + UP * 1) for p in points_e1],
-            *[l.animate.scale(0.7).shift(LEFT * 1.5 + UP * 1) for l in point_labels_e1],
+            e1.animate.scale(scale_factor).move_to(new_e1_center),
+            FadeOut(e1_label),
+            # Transform points relative to curve center
+            *[
+                p.animate.scale(scale_factor).move_to(
+                    old_e1_center
+                    + (p.get_center() - old_e1_center) * scale_factor
+                    + (new_e1_center - old_e1_center)
+                )
+                for p in points_e1
+            ],
+            *[
+                l.animate.scale(scale_factor).move_to(
+                    old_e1_center
+                    + (l.get_center() - old_e1_center) * scale_factor
+                    + (new_e1_center - old_e1_center)
+                )
+                for l in point_labels_e1
+            ],
         )
 
         # Show multiple target curves with different kernels
@@ -377,7 +421,7 @@ class Kernels(Scene):
         kernel_specs = [
             ("\\{O, P_1\\}", "E_2", GREEN_C, 0.6),
             ("\\{O, P_2\\}", "E_3", TEAL_C, 0.65),
-            ("\\{O, P_3\\}", "E_4", PURPLE_C, 0.7),
+            ("\\{O, P_3\\}", "E_4", PURPLE_C, 0.8),
         ]
 
         for i, (ker_text, curve_name, color, b) in enumerate(kernel_specs):
@@ -398,15 +442,11 @@ class Kernels(Scene):
                 buff=0.1,
             )
 
-            # Kernel annotation
-            ker_label = MathTex(ker_text, font_size=20, color=color)
-            ker_label.next_to(arrow, UP, buff=0.05)
-
+            # Animate curve appearance
             self.play(
                 GrowFromCenter(curve),
                 GrowArrow(arrow),
                 Write(label),
-                Write(ker_label),
                 run_time=0.8,
             )
 
@@ -421,4 +461,4 @@ class Kernels(Scene):
         final_text.to_edge(DOWN, buff=0.4)
         self.play(FadeIn(final_text))
 
-        self.wait(3)
+        self.wait(5)
