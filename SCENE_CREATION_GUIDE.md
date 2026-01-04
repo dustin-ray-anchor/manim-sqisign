@@ -224,7 +224,7 @@ explanation = Text("...", font_size=28, color=WHITE)
 step1 = Text("Step 1: ...", font_size=24, color=GOLD_A)
 
 # WRONG - text will be hard to read
-explanation = Text("...", font_size=28, color=GRAY)  # ❌ Don't do this
+explanation = Text("...", font_size=28, color=GRAY)  # Don't do this
 ```
 
 ### Text-Arrow Color Matching
@@ -563,18 +563,18 @@ Study these existing scenes for examples:
 
 ## Common Mistakes to Avoid
 
-1. ❌ Using `axes.plot()` with large step sizes (≥0.01) - creates gaps!
-2. ❌ Mixing coordinate systems (EllipticCurve with axes.c2p points)
-3. ❌ Using `EllipticCurveWithFill` by default
-4. ❌ Creating titles at the top of the screen
-5. ❌ Using gray text for important information
-6. ❌ Font sizes smaller than 24
-7. ❌ Mismatched colors (gray label on gold arrow)
-8. ❌ Rushing animations (no wait times)
-9. ❌ Using curve parameters that create gaps (b < 0.5 or b > 0.8 for diagram nodes)
-10. ❌ Cluttered scenes without clear focus
-11. ❌ Missing explanatory text
-12. ❌ Forgetting `sys.path.insert` for imports
+1. Using `axes.plot()` with large step sizes (≥0.01) - creates gaps!
+2. Mixing coordinate systems (EllipticCurve with axes.c2p points)
+3. Using `EllipticCurveWithFill` by default
+4. Creating titles at the top of the screen
+5. Using gray text for important information
+6. Font sizes smaller than 24
+7. Mismatched colors (gray label on gold arrow)
+8. Rushing animations (no wait times)
+9. Using curve parameters that create gaps (b < 0.5 or b > 0.8 for diagram nodes)
+10. Cluttered scenes without clear focus
+11. Missing explanatory text
+12. Forgetting `sys.path.insert` for imports
 
 ---
 
