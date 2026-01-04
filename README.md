@@ -221,10 +221,50 @@ Complete visualization of the SQIsign sigma protocol showing the commitment, cha
 
 ## Running the Scenes
 
-### Prerequisites
+### Setup Instructions
+
+#### 1. Python Virtual Environment
+
+Create and activate a Python virtual environment:
+
+```bash
+# Create virtual environment
+python3 -m venv venv
+
+# Activate on Linux/macOS
+source venv/bin/activate
+
+# Activate on Windows
+venv\Scripts\activate
+```
+
+#### 2. Install LaTeX
+
+Manim requires LaTeX to render mathematical expressions.
+
+**Ubuntu/Debian:**
+```bash
+sudo apt-get update
+sudo apt-get install texlive texlive-latex-extra texlive-fonts-extra
+```
+
+**macOS (using Homebrew):**
+```bash
+brew install --cask mactex
+```
+
+**Windows:**
+Download and install [MiKTeX](https://miktex.org/download) or [TeX Live](https://www.tug.org/texlive/)
+
+#### 3. Install Manim
 
 ```bash
 pip install manim
+```
+
+**Verify installation:**
+```bash
+manim --version
 ```
 
 ### Render Commands
